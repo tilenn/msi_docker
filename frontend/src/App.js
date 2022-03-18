@@ -3,15 +3,13 @@ import axios from "axios";
 
 const App = () => {
   const [bookData, setBookData] = useState([]);
-
   const [bookTitle, setBookTitle] = useState("");
   const [bookReview, setBookReview] = useState("");
 
   useEffect(() => {
     const getData = async () => {
-      const response = await axios.get("/backend/all");
+      const response = await axios.get("/backend/api/books/all");
       const data = response.data;
-      console.log(data);
       setBookData(data);
     };
 
@@ -38,9 +36,13 @@ const App = () => {
     };
 
     const sendData = async () => {
-      const request = axios.post("/backend/save", book);
+      const request = axios.post("/backend/api/books/save", book);
       const nb = (await request).data;
       setBookData(bookData.concat(nb));
+
+      // reset values
+      setBookTitle("");
+      setBookReview("");
     };
 
     sendData();
@@ -48,13 +50,11 @@ const App = () => {
 
   const handleDelete = (idBook) => {
     const deleteBook = async () => {
-      const del = await axios.delete("/backend/delete", {
+      const del = await axios.delete("/backend/api/books/delete", {
         data: { id: idBook },
       });
 
-      await setBookData(bookData.filter((x) => x._id !== idBook));
-      console.log(idBook);
-      console.log(bookData);
+      await setBookData(bookData.filter((x) => x.id !== idBook));
     };
 
     deleteBook();
@@ -76,12 +76,12 @@ const App = () => {
       </form>
       <ul>
         {bookData.map((n) => (
-          <li key={n._id}>
+          <li key={n.id}>
             <p>
               <b>{n.title}:</b> {n.review}{" "}
               <button
                 onClick={() => {
-                  handleDelete(n._id);
+                  handleDelete(n.id);
                 }}
               >
                 Delete
